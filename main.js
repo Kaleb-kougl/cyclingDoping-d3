@@ -9,7 +9,6 @@ HTTP.onreadystatechange = function(){
     if (this.readyState == 4 && this.status == 200) {
         dataset = JSON.parse(HTTP.responseText);
         console.log(dataset);
-        // dataset = datasetJSON["data"];
         d3Commands();
     } else {
         console.log("something went wrong");
@@ -17,18 +16,11 @@ HTTP.onreadystatechange = function(){
 }
 
 function d3Commands() {
-
     const PADDING = 20;
     const HEIGHT = 500;
     const WIDTH = 840;
 
     // Determine axis scales
-    const Y_MAX = d3.max(dataset, (d) => d['Seconds']);
-    const Y_MIN = d3.min(dataset, (d) => d['Seconds']);
-    const Y_SCALE = d3.scaleLinear()
-                      .domain([Y_MIN, Y_MAX])
-                      .range([PADDING, (HEIGHT - PADDING)]);
-    const Y_AXIS = d3.axisLeft(Y_SCALE);
     const X_MAX = d3.max(dataset, (d) => d['Year']);
     const X_MIN = d3.min(dataset, (d) => d['Year']);
     const X_SCALE = d3.scaleLinear()
@@ -36,21 +28,22 @@ function d3Commands() {
                       .range([(PADDING + PADDING), (WIDTH - PADDING)]);
     const X_AXIS = d3.axisBottom(X_SCALE);
 
-    let tempDate = new Date(dataset[1]['Time']);
-    let format = d3.timeFormat("%M:%S");
-    // console.log(format(new Date(dataset[1]['Time'])));
-    console.log(tempDate);
-    // console.log(new Date());
-    let date = new Date();
-    console.log(date);
-    console.log(dataset[1]['Time']);
+    const TIME_FORMAT = d3.timeFormat("%M:%S");
+    const REGEX_SPLIT_TIME = /:/;
+    let dateArray = [];
+    for (let i = 0; i < dataset.length; i++){
+        let date = new Date(1996, 0, );
+        let tempArray = dataset[i]['Time'].split(REGEX_SPLIT_TIME);
+        date.setMinutes(parseInt(tempArray[0]), parseInt(tempArray[1]));
+        dateArray.push(date);
+    }
 
-    let reg_split_time = /:/;
-    let array = dataset[1]['Time'].split(reg_split_time);
-    console.log(array);
-
-    date.setMinutes(parseInt(array[0]), parseInt(array[1]));
-    console.log(date);
+    const MIN_DATE = dateArray[0];
+    const MAX_DATE = dateArray[dateArray.length - 1];
+    const Y_SCALE = d3.scaleTime()
+                           .domain([MIN_DATE, MAX_DATE])
+                           .range([PADDING, (HEIGHT - PADDING)]);
+    const Y_AXIS = d3.axisLeft(Y_SCALE).tickFormat(TIME_FORMAT);
 
     
     // Append data svg to html
@@ -74,9 +67,12 @@ function d3Commands() {
        .enter()
        .append('circle')
        .attr('cx', (d, i) => X_SCALE(d['Year']))
-       .attr('cy', (d, i) => Y_SCALE(d['Seconds']))
+       .attr('cy', (d, i) => Y_SCALE(dateArray[i]))
        .attr('r', 8)
-       .attr('fill', 'red');
+       .attr('fill', 'red')
+       .attr('class', 'dot')
+       .attr('data-xvalue', (d, i) => X_SCALE(d['Year']))
+       .attr('data-yvalue', (d, i) => Y_SCALE(dateArray[i]));
 
     svg.append('g')
        .attr('transform', 'translate(' + (PADDING + PADDING) + ', 0)')
