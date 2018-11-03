@@ -27,7 +27,7 @@ function d3Commands() {
     const TIME_FORMAT = d3.timeFormat("%M:%S");
     const REGEX_SPLIT_TIME = /:/;
     let dateArray = [];
-    let yearArray = []
+    let yearArray = [];
     for (let i = 0; i < dataset.length; i++){
         let date = new Date(1996, 0, );
         let year = new Date(dataset[i]['Year'], 0);
@@ -59,15 +59,17 @@ function d3Commands() {
                 .attr('width', WIDTH)
                 .attr('height', HEIGHT);
 
+    // Title
     svg.append('text')
        .attr('x', WIDTH / 2)
        .attr('y', PADDING)
-       .attr('font-size', 24)
-       .attr('text-anchor', 'center')
+       .attr('font-size', '24px')
+       .attr('text-anchor', 'middle')
        .attr('id', 'title')
        .attr('text-decoration', 'underline')
        .text('Doping in Professional Bicycle Racing');
 
+    // Data points
     svg.selectAll('circle')
        .data(dataset)
        .enter()
@@ -75,11 +77,25 @@ function d3Commands() {
        .attr('cx', (d, i) => YEAR_SCALE(new Date(d['Year'], 0)))
        .attr('cy', (d, i) => Y_SCALE(dateArray[i]))
        .attr('r', 8)
-       .attr('fill', 'red')
+       .style('opacity', 0.8)
+       .style('fill', (d, i) => {
+           if (d['Doping'] == "") {
+               return 'green'
+           } else {
+                return 'purple'
+           }
+       })
+       .attr('stroke-width', 1.5)
+       .attr('stroke', 'black')
        .attr('class', 'dot')
        .attr('data-xvalue', (d, i) => d['Year'])
-       .attr('data-yvalue', (d, i) => dateArray[i]);
+       .attr('data-yvalue', (d, i) => dateArray[i])
+       .append('svg:title')
+       .attr('x', (d, i) => YEAR_SCALE(new Date(d['Year'], 0)))
+       .attr('y', (d, i) => Y_SCALE(dateArray[i]))
+       .text((d, i) => dateArray[i] + " <br> " + d['Year']);
 
+    //  Add axes
     svg.append('g')
        .attr('transform', 'translate(' + (PADDING + PADDING) + ', 0)')
        .attr('id', 'y-axis')
@@ -89,4 +105,32 @@ function d3Commands() {
        .attr('transform', 'translate(0,' + (HEIGHT - PADDING) + ')')
        .attr('id', 'x-axis')
        .call(X_AXIS);
+
+    //  Add Legend
+    let legend = svg.append("g")
+    .attr("class", "legend")
+    .attr('id', 'legend')
+    .attr("transform","translate(" + (WIDTH - PADDING * 8) + ",30)")
+    .style("font-size","12px")
+    .selectAll('g')
+    .data(["No Doping Allegations", "Doping Allegations"])
+    .enter().append('g');
+
+    legend.append('circle')
+          .attr('cy', (d, i) => i * 20)
+          .attr('r', 8)
+          .attr('fill', (d) => {
+              if (d == "No Doping Allegations") {
+                  return 'green';
+              } else {
+                  return 'purple';
+              }
+          })
+          .attr('stroke-width', 1.5)
+          .attr('stroke', 'black');
+
+    legend.append('text')
+          .attr('y', (d, i) => i * 20)
+          .attr('x', (d, i) => 12)
+          .text((d) => d);
 }
