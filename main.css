@@ -44,3 +44,13 @@ table {
 }
 
 /* Starting of Styling CSS */
+
+.container {
+    /* border: 1px solid red; */
+    display: flex;
+    justify-content: center;
+}
+
+#svg {
+    border: 1px solid black;
+}
