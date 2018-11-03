@@ -51,6 +51,11 @@ function d3Commands() {
                            .range([PADDING, (HEIGHT - PADDING)]);
     const Y_AXIS = d3.axisLeft(Y_SCALE).tickFormat(TIME_FORMAT);
 
+    let tooltip = d3.select('body').append('div')
+                    .attr('class', 'tooltip')
+                    .attr('id', 'tooltip')
+                    .attr('data-year', 'none')
+                    .style('opacity', 0);
     
     // Append data svg to html
     let svg = d3.select('div')
@@ -90,10 +95,25 @@ function d3Commands() {
        .attr('class', 'dot')
        .attr('data-xvalue', (d, i) => d['Year'])
        .attr('data-yvalue', (d, i) => dateArray[i])
-       .append('svg:title')
-       .attr('x', (d, i) => YEAR_SCALE(new Date(d['Year'], 0)))
-       .attr('y', (d, i) => Y_SCALE(dateArray[i]))
-       .text((d, i) => dateArray[i] + " <br> " + d['Year']);
+    //    TOOLTIP
+       .on('mouseover', function (d, i){
+            tooltip.transition()
+                   .duration(0)
+                   .style('opacity', 0.9)
+                   .attr('data-year', function() {
+                       return parseInt(d['Year']);
+                   });
+            tooltip.html(d['Name'] + ': ' + d['Nationality'] + '<br>' +'Year: ' + 
+                        d['Year'] + ', Time: ' + d['Time'] + '<br> <br>' + d['Doping'])
+                   .style('left', (d3.event.pageX) + 10 + 'px')
+                   .style('top', (d3.event.pageY) + 'px');
+       })
+       .on('mouseout', function(d, i) {
+           tooltip.transition()
+                  .duration(200)
+                  .style('opacity', 0)
+                  .attr('data-year', 0);
+       });
 
     //  Add axes
     svg.append('g')
