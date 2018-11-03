@@ -45,14 +45,18 @@ table {
 
 /* Starting of Styling CSS */
 
-.container {
-    /* border: 1px solid red; */
+body {
     display: flex;
     justify-content: center;
+    background-color: rgb(113, 128, 143)
 }
 
-#svg {
+.container {
     border: 1px solid black;
+    box-shadow: 5px 5px 5px 5px rgba(0, 0, 0, 0.5);
+    background-color: white;
+    padding: 10px;
+    margin: 3em;
 }
 
 div.tooltip {
